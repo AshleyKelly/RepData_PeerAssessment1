@@ -1,9 +1,4 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 Assignment
 ========================================================
@@ -21,7 +16,8 @@ NOTE: The GitHub repository also contains the dataset for the assignment so you 
 
 ## Loading and preprocessing the data
 Unzip the folder and read in the data in the activity.csv file.
-```{r echo = TRUE}
+
+```r
 if (!file.exists('activity.csv')) {
   unzip(zipfile = "activity.zip")
 }
@@ -31,7 +27,8 @@ activityData <- read.csv(file="activity.csv", header=TRUE)
 
 
 ## What is mean total number of steps taken per day?
-```{r echo = TRUE}
+
+```r
 # Calculate the total steps taken per day
 totalSteps <- aggregate(steps ~ date, activityData, FUN=sum)
 
@@ -39,17 +36,22 @@ totalSteps <- aggregate(steps ~ date, activityData, FUN=sum)
 hist(totalSteps$steps,
      main = "Total Steps per Day",
      xlab = "Number of Steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 # Calculate and report the mean and median of total steps taken per day
 meanSteps <- mean(totalSteps$steps, na.rm = TRUE)
 medSteps <- median(totalSteps$steps, na.rm = TRUE)
 ```
 
-<center>Mean Number of Steps Taken per Day = `r meanSteps`</center>
-<center>Median Number of Steps Taken per Day = `r medSteps`</center>
+<center>Mean Number of Steps Taken per Day = 1.0766189\times 10^{4}</center>
+<center>Median Number of Steps Taken per Day = 10765</center>
 
 ## What is the average daily activity pattern?
-```{r echo = TRUE}
+
+```r
 # Make a time-series plot of the 5-minute interval and the average number of
 # steps taken, averaged acoss all days.
 library(ggplot2)
@@ -60,23 +62,28 @@ ggplot(data = meanStepsByInt, aes(x = interval, y = steps)) +
   xlab("5-minute Interval") +
   ylab("Average Number of Steps") +
   theme(plot.title = element_text(hjust = 0.5))
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
+```r
 # Which 5-minute interval across all days contain the maximum number of steps
 maxInt <- meanStepsByInt[which.max(meanStepsByInt$steps),]
 ```
 
 ## Imputing Missing Values
-```{r}
+
+```r
 # Calculate and report the total number of missing values in the dataset
 missingVals <- is.na(activityData$steps)
 
 # Devise a strategy for filling in all of the missing values
 ```
 
-There are `r NROW(missingVals)` missing values. I will replace these missing values with the 5-day average of that respective interval.
+There are 17568 missing values. I will replace these missing values with the 5-day average of that respective interval.
 
-```{r}
+
+```r
 # Create a new dataset that is equal to the original dataset but with 
 # the missing data filled in.
 imp_activityData <- transform(activityData,
@@ -91,6 +98,11 @@ impStepsByInt <- aggregate(steps ~ date, imp_activityData, FUN=sum)
 hist(impStepsByInt$steps,
      main = "Imputed Number of Steps Per Day",
      xlab = "Number of Steps")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+```r
 impMeanSteps <- mean(impStepsByInt$steps, na.rm = TRUE)
 impMedSteps <- median(impStepsByInt$steps, na.rm = TRUE)
 diffMean = impMeanSteps - meanSteps
@@ -98,12 +110,13 @@ diffMed = impMedSteps - medSteps
 diffTotal = sum(impStepsByInt$steps) - sum(totalSteps$steps)
 ```
 
-There is a difference of `r diffMean` in the mean steps of the two dataset.
-There is a difference of `r diffMed - medSteps` in the median steps of the two dataset.
-There is a difference of `r diffTotal` in the total steps of the two dataset.
+There is a difference of 0 in the mean steps of the two dataset.
+There is a difference of -1.0763811\times 10^{4} in the median steps of the two dataset.
+There is a difference of 8.6129509\times 10^{4} in the total steps of the two dataset.
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 # Create a new factor variable in the dataset with two levels - "weekend" and "weekday"
 DayType <- function(date) {
   day <- weekdays(date)
@@ -128,3 +141,5 @@ ggplot(data = meanStepsByDay, aes(x = interval, y = steps)) +
   ylab("Average Number of Steps") +
   theme(plot.title = element_text(hjust = 0.5))
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
